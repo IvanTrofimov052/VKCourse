@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">VKCourse</string>
+    <string name="app_list_title">Приложения</string>
 </resources>
