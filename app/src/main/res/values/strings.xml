@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">VKCourse</string>
+    <string name="apps_title">Приложения</string>
+    <string name="apps_toolbar_message">Добро пожаловать в каталог приложений!</string>
+    <string name="showcase_title">Витрина</string>
+    <string name="showcase_page">Страница %1$d из %2$d</string>
+    <string name="back">Назад</string>
+    <string name="share">Поделиться</string>
+    <string name="app_details_age">Возраст</string>
+    <string name="app_details_size">Размер</string>
+    <string name="app_size">%1$d МБ</string>
+    <string name="install">Установить</string>
+    <string name="app_details_screenshots">Скриншоты</string>
+    <string name="app_details_description">Описание приложения</string>
+    <string name="app_details_read_more">Читать подробнее</string>
+    <string name="app_details_developer">Разработчик</string>
+    <string name="under_development">В процессе разработки</string>
 </resources>
