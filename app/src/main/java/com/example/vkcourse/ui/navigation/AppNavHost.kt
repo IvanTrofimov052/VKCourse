@@ -10,7 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.vkcourse.data.AppCatalog
 import com.example.vkcourse.ui.appdetails.AppDetailsScreen
-import com.example.vkcourse.ui.applist.AppListScreen
+import com.example.vkcourse.ui.applist.AppListRoute
 
 private const val APP_LIST = "apps"
 private const val APP_ID = "appId"
@@ -26,8 +26,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         composable(APP_LIST) {
-            AppListScreen(
-                apps = AppCatalog.apps,
+            AppListRoute(
                 onAppClick = { app ->
                     navController.navigate("app/${Uri.encode(app.id)}") {
                         launchSingleTop = true

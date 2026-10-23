@@ -10,6 +10,18 @@
 навигация — в `AppNavHost` через Navigation Compose (`NavHost`, `composable`,
 `rememberNavController`). Интернет используется только для загрузки изображений.
 
+Список использует MVVM: `AppListViewModel` читает каталог один раз при создании и
+хранит `AppListUiState` в `StateFlow`. `AppListRoute` получает ViewModel из текущего
+элемента back stack навигации и собирает состояние с учётом lifecycle, а
+`AppListScreen` отображает данные и передаёт действия пользователя. При повороте
+экрана ViewModel сохраняется, каталог не запрашивается повторно; `LazyColumn`
+сохраняет позицию прокрутки.
+
+Нажатие на toolbar списка показывает Snackbar. Событие передаётся через
+`SharedFlow` с `replay = 0` отдельно от состояния списка. Подписка активна только
+на видимом экране (`STARTED`), поэтому уже показанный Snackbar после поворота
+или возврата из карточки не появляется снова.
+
 Карточка перенесена из [практического репозитория VkEducation](https://github.com/maltsevmicyou/VkEducation/tree/b4c673ba2c65fdab3277c144aae300947e43dcb6/app/src/main/java/io/mmaltsev/vkeducation/presentation/appdetails)
 (коммит `b4c673ba2c65fdab3277c144aae300947e43dcb6`): `AppDetailsContent`,
 `AppDetailsHeader`, `Toolbar`, `InstallButton`, `ScreenshotsList`, `AppDescription`,
@@ -22,3 +34,6 @@
 
 Проверка: `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug`.
 UI-проверки на подключённом устройстве/эмуляторе: `./gradlew :app:connectedDebugAndroidTest`.
+Для ручной проверки прокрутите список и поверните экран: содержимое и позиция
+должны сохраниться. Нажмите на toolbar и поверните экран во время показа Snackbar:
+сообщение должно исчезнуть и появляться только после нового нажатия.

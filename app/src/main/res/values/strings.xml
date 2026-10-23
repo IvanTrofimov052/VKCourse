@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">VKCourse</string>
     <string name="apps_title">Приложения</string>
+    <string name="apps_toolbar_message">Добро пожаловать в каталог приложений!</string>
     <string name="showcase_title">Витрина</string>
     <string name="showcase_page">Страница %1$d из %2$d</string>
     <string name="back">Назад</string>
