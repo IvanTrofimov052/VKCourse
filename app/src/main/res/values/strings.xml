@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">VKCourse</string>
+    <string name="app_not_found">Приложение не найдено</string>
     <string name="apps_title">Приложения</string>
     <string name="apps_toolbar_message">Добро пожаловать в каталог приложений!</string>
     <string name="showcase_title">Витрина</string>

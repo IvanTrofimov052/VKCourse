@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.vkcourse.ui.navigation.AppNavHost
-import com.example.vkcourse.ui.theme.VKCourseTheme
+import com.example.vkcourse.di.AppContainer
+import com.example.vkcourse.presentation.navigation.AppNavHost
+import com.example.vkcourse.presentation.theme.VKCourseTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             VKCourseTheme {
-                AppNavHost()
+                AppNavHost(repository = AppContainer.appRepository)
             }
         }
     }

@@ -17,29 +17,31 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.vkcourse.data.AppCatalog
-import com.example.vkcourse.ui.appdetails.Showcase
-import com.example.vkcourse.ui.navigation.AppNavHost
-import com.example.vkcourse.ui.theme.VKCourseTheme
+import com.example.vkcourse.di.AppContainer
+import com.example.vkcourse.presentation.appdetails.Showcase
+import com.example.vkcourse.presentation.navigation.AppNavHost
+import com.example.vkcourse.presentation.theme.VKCourseTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppNavigationTest {
+    private val repository = AppContainer.appRepository
+
     @get:Rule
     val compose = createComposeRule()
 
     @Test
     fun showcaseHasThreePagesWithThreeAppsAndStopsAtTheLastPage() {
         compose.setContent {
-            VKCourseTheme { Showcase(apps = AppCatalog.showcaseApps, onAppClick = {}) }
+            VKCourseTheme { Showcase(apps = repository.getShowcaseApps(), onAppClick = {}) }
         }
 
         repeat(3) { page ->
             compose.onNodeWithTag("showcase_page_$page", useUnmergedTree = true)
                 .onChildren().assertCountEquals(3)
-            AppCatalog.showcaseApps.drop(page * 3).take(3).forEach { app ->
+            repository.getShowcaseApps().drop(page * 3).take(3).forEach { app ->
                 compose.onNodeWithText(app.name).assertIsDisplayed()
             }
             compose.onNodeWithContentDescription("Страница ${page + 1} из 3")
@@ -58,7 +60,7 @@ class AppNavigationTest {
     @Test
     fun listOpensSelectedAppAndToolbarBackReturnsToList() {
         showApp()
-        val selectedApp = AppCatalog.showcaseApps.first()
+        val selectedApp = repository.getShowcaseApps().first()
         compose.onNodeWithTag("catalog_app_${selectedApp.id}")
             .performScrollTo().performClick()
         compose.onNodeWithTag("app_details_screen").assertIsDisplayed()
@@ -72,7 +74,7 @@ class AppNavigationTest {
     @Test
     fun everyShowcaseAppReturnsToListWithoutLeavingDetailsInBackStack() {
         showApp()
-        AppCatalog.showcaseApps.forEachIndexed { index, app ->
+        repository.getShowcaseApps().forEachIndexed { index, app ->
             openFeaturedApp()
             compose.onNodeWithTag("showcase_pager").performScrollTo()
             repeat(index / 3) {
@@ -92,11 +94,11 @@ class AppNavigationTest {
     }
 
     private fun showApp() {
-        compose.setContent { VKCourseTheme { AppNavHost() } }
+        compose.setContent { VKCourseTheme { AppNavHost(repository = repository) } }
     }
 
     private fun openFeaturedApp() {
-        compose.onNodeWithTag("catalog_app_${AppCatalog.featuredApp.id}")
+        compose.onNodeWithTag("catalog_app_${repository.getApps().first().id}")
             .performScrollTo().performClick()
         compose.onNodeWithTag("app_details_screen").assertIsDisplayed()
     }
