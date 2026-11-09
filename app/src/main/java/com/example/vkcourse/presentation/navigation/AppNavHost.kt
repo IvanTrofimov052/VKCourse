@@ -8,26 +8,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.vkcourse.domain.repository.AppRepository
 import com.example.vkcourse.presentation.appdetails.AppDetailsRoute
 import com.example.vkcourse.presentation.applist.AppListRoute
 
-private const val APP_LIST = "apps"
-private const val APP_ID = "appId"
-private const val APP_DETAILS = "app/{$APP_ID}"
-
 @Composable
-fun AppNavHost(repository: AppRepository, modifier: Modifier = Modifier) {
+fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = APP_LIST,
+        startDestination = AppDestinations.APP_LIST,
         modifier = modifier,
     ) {
-        composable(APP_LIST) {
+        composable(AppDestinations.APP_LIST) {
             AppListRoute(
-                repository = repository,
                 onAppClick = { app ->
                     navController.navigate("app/${Uri.encode(app.id)}") {
                         launchSingleTop = true
@@ -36,16 +30,17 @@ fun AppNavHost(repository: AppRepository, modifier: Modifier = Modifier) {
             )
         }
         composable(
-            route = APP_DETAILS,
-            arguments = listOf(navArgument(APP_ID) { type = NavType.StringType }),
-        ) { entry ->
+            route = AppDestinations.APP_DETAILS,
+            arguments = listOf(
+                navArgument(AppDestinations.APP_ID) { type = NavType.StringType },
+            ),
+        ) {
+            // appId попадает в SavedStateHandle ViewModel через аргументы навигации.
             AppDetailsRoute(
-                appId = requireNotNull(entry.arguments?.getString(APP_ID)),
-                repository = repository,
                 onBackClick = { navController.popBackStack() },
                 onShowcaseAppClick = {
-                    navController.navigate(APP_LIST) {
-                        popUpTo(APP_LIST)
+                    navController.navigate(AppDestinations.APP_LIST) {
+                        popUpTo(AppDestinations.APP_LIST)
                         launchSingleTop = true
                     }
                 },

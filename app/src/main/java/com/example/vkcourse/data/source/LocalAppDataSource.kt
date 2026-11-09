@@ -1,11 +1,12 @@
 package com.example.vkcourse.data.source
 
 import com.example.vkcourse.data.dto.AppDetailsDto
+import javax.inject.Inject
 
 /**
  * Локальный источник хранит исходные данные только в DTO. Сетевого API нет.
  */
-class LocalAppDataSource {
+class LocalAppDataSource @Inject constructor() {
     private val featuredApp = AppDetailsDto(
         id = "fa2e31b8-1234-4cf7-9914-108a170a1b01",
         name = "Гильдия Героев: Экшен ММО РПГ",

@@ -23,9 +23,14 @@
   а Route-компоненты собирают `StateFlow` с учётом lifecycle и передают данные в верстку.
 
 Зависимости направлены к domain: `presentation → domain ← data`.
-`di/AppContainer` создаёт источник, Mapper и реализацию Repository;
-`MainActivity` передаёт интерфейс репозитория в навигацию. Фабрики создают
-ViewModel в соответствующих элементах back stack.
+Для внедрения зависимостей используется Hilt: `VKCourseApplication` помечен
+`@HiltAndroidApp`, `MainActivity` — `@AndroidEntryPoint`. В `di/AppModule`
+метод `bindAppRepository` связывает интерфейс `AppRepository` с реализацией
+`AppRepositoryImpl`; источник данных и Mapper получают зависимости через
+`@Inject constructor`. ViewModel помечены `@HiltViewModel` и запрашивают
+интерфейс репозитория в конструкторе, а Route-компоненты создают их через
+`hiltViewModel()`. `AppDetailsViewModel` получает `appId` из `SavedStateHandle`,
+который заполняется аргументами Navigation Compose.
 
 Путь данных: `LocalAppDataSource → AppDetailsDto → AppDetailsMapper → AppDetails → AppRepository → ViewModel → Screen`.
 Все методы репозитория возвращают
@@ -51,7 +56,7 @@ ViewModel в соответствующих элементах back stack.
 (коммит `b4c673ba2c65fdab3277c144aae300947e43dcb6`): `AppDetailsContent`,
 `AppDetailsHeader`, `Toolbar`, `InstallButton`, `ScreenshotsList`, `AppDescription`,
 `Developer`, модели `AppDetails` и `Category`. Адаптированы пакеты и ресурсы,
-данные передаются из локального каталога вместо API/Hilt/Room, добавлена витрина.
+данные передаются из локального каталога вместо API/Room, добавлена витрина.
 Для скриншотов используются реальные URL из модели вместо заглушек «1», «2», «3».
 Названия и URL приложений витрины взяты из первых девяти элементов `SimilarAppsApi`;
 описания и остальные поля заполнены локально. Кнопки установки, отправки и
@@ -60,7 +65,8 @@ ViewModel в соответствующих элементах back stack.
 Unit-тесты проверяют преобразование полей DTO, категории и отсутствующих
 скриншотов, получение каталога, витрины и карточек через Repository, а также
 однократную загрузку данных обеими ViewModel и поведение событий Snackbar.
-Тесты ViewModel используют подставную реализацию интерфейса `AppRepository`.
+Тесты ViewModel используют подставную реализацию интерфейса `AppRepository`
+и создают ViewModel напрямую, без запуска Hilt.
 
 Проверка: `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleDebugAndroidTest`.
 UI-проверки на подключённом устройстве/эмуляторе: `./gradlew :app:connectedDebugAndroidTest`.

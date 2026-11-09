@@ -3,8 +3,9 @@ package com.example.vkcourse.data.mapper
 import com.example.vkcourse.data.dto.AppDetailsDto
 import com.example.vkcourse.domain.model.AppDetails
 import com.example.vkcourse.domain.model.Category
+import javax.inject.Inject
 
-class AppDetailsMapper {
+class AppDetailsMapper @Inject constructor() {
     fun toDomain(dto: AppDetailsDto): AppDetails = AppDetails(
         id = dto.id,
         name = dto.name,

@@ -7,21 +7,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vkcourse.R
 import com.example.vkcourse.domain.model.AppDetails
-import com.example.vkcourse.domain.repository.AppRepository
 
 @Composable
 fun AppListRoute(
-    repository: AppRepository,
     onAppClick: (AppDetails) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AppListViewModel = viewModel(factory = AppListViewModel.factory(repository)),
+    viewModel: AppListViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }

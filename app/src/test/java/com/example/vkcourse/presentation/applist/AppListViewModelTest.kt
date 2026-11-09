@@ -2,6 +2,8 @@ package com.example.vkcourse.presentation.applist
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.vkcourse.FakeAppRepository
 import com.example.vkcourse.TestApps
 import kotlinx.coroutines.CoroutineStart
@@ -19,7 +21,9 @@ class AppListViewModelTest {
         val apps = TestApps.apps
         val repository = FakeAppRepository(apps = apps)
         val store = ViewModelStore()
-        val factory = AppListViewModel.factory(repository)
+        val factory = viewModelFactory {
+            initializer { AppListViewModel(repository = repository) }
+        }
 
         try {
             val original = ViewModelProvider.create(store, factory)[AppListViewModel::class]

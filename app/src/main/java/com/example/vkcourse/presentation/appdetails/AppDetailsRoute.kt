@@ -9,22 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vkcourse.R
 import com.example.vkcourse.domain.model.AppDetails
-import com.example.vkcourse.domain.repository.AppRepository
 
 @Composable
 fun AppDetailsRoute(
-    appId: String,
-    repository: AppRepository,
     onBackClick: () -> Unit,
     onShowcaseAppClick: (AppDetails) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AppDetailsViewModel = viewModel(
-        factory = AppDetailsViewModel.factory(appId, repository),
-    ),
+    viewModel: AppDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val app = uiState.app

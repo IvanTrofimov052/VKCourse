@@ -1,14 +1,14 @@
 package com.example.vkcourse.presentation.applist
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.vkcourse.domain.model.AppDetails
 import com.example.vkcourse.domain.repository.AppRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
 data class AppListUiState(val apps: List<AppDetails>)
 
@@ -16,7 +16,9 @@ sealed interface AppListEvent {
     data object ShowToolbarSnackbar : AppListEvent
 }
 
-class AppListViewModel(
+@HiltViewModel
+class AppListViewModel @Inject constructor(
+    // Hilt подставляет AppRepositoryImpl, зарегистрированный в AppModule.
     repository: AppRepository,
 ) : ViewModel() {
     // Каталог читается только при создании ViewModel, которая переживает поворот экрана.
@@ -29,11 +31,5 @@ class AppListViewModel(
 
     fun onToolbarClick() {
         _events.tryEmit(AppListEvent.ShowToolbarSnackbar)
-    }
-
-    companion object {
-        fun factory(repository: AppRepository) = viewModelFactory {
-            initializer { AppListViewModel(repository) }
-        }
     }
 }

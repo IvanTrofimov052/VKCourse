@@ -5,7 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -17,7 +17,9 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.vkcourse.di.AppContainer
+import com.example.vkcourse.data.mapper.AppDetailsMapper
+import com.example.vkcourse.data.repository.AppRepositoryImpl
+import com.example.vkcourse.data.source.LocalAppDataSource
 import com.example.vkcourse.presentation.appdetails.Showcase
 import com.example.vkcourse.presentation.navigation.AppNavHost
 import com.example.vkcourse.presentation.theme.VKCourseTheme
@@ -27,10 +29,13 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppNavigationTest {
-    private val repository = AppContainer.appRepository
+    private val repository = AppRepositoryImpl(
+        dataSource = LocalAppDataSource(),
+        mapper = AppDetailsMapper(),
+    )
 
     @get:Rule
-    val compose = createComposeRule()
+    val compose = createAndroidComposeRule<MainActivity>()
 
     @Test
     fun showcaseHasThreePagesWithThreeAppsAndStopsAtTheLastPage() {
@@ -94,7 +99,7 @@ class AppNavigationTest {
     }
 
     private fun showApp() {
-        compose.setContent { VKCourseTheme { AppNavHost(repository = repository) } }
+        compose.setContent { VKCourseTheme { AppNavHost() } }
     }
 
     private fun openFeaturedApp() {

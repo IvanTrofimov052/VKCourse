@@ -4,8 +4,9 @@ import com.example.vkcourse.data.mapper.AppDetailsMapper
 import com.example.vkcourse.data.source.LocalAppDataSource
 import com.example.vkcourse.domain.model.AppDetails
 import com.example.vkcourse.domain.repository.AppRepository
+import javax.inject.Inject
 
-class AppRepositoryImpl(
+class AppRepositoryImpl @Inject constructor(
     private val dataSource: LocalAppDataSource,
     private val mapper: AppDetailsMapper,
 ) : AppRepository {
