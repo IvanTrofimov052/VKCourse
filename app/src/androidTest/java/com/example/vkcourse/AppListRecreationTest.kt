@@ -8,26 +8,40 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.vkcourse.data.mapper.AppDetailsMapper
-import com.example.vkcourse.data.repository.AppRepositoryImpl
-import com.example.vkcourse.data.source.LocalAppDataSource
+import com.example.vkcourse.di.AppModule
+import com.example.vkcourse.domain.repository.AppRepository
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@HiltAndroidTest
+@UninstallModules(AppModule::class)
 @RunWith(AndroidJUnit4::class)
 class AppListRecreationTest {
-    private val repository = AppRepositoryImpl(
-        dataSource = LocalAppDataSource(),
-        mapper = AppDetailsMapper(),
-    )
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
 
-    @get:Rule
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+
+    @BindValue
+    @JvmField
+    val repository: AppRepository = AndroidTestData.repository
+
+    private val lastAppTag = "catalog_app_${AndroidTestData.apps.last().id}"
+
+    @Before
+    fun inject() {
+        hiltRule.inject()
+    }
 
     @Test
     fun catalogAndScrollPositionSurviveActivityRecreation() {
-        val lastAppTag = "catalog_app_${repository.getApps().last().id}"
         compose.onNodeWithTag("app_list").performScrollToNode(hasTestTag(lastAppTag))
         compose.onNodeWithTag(lastAppTag).assertIsDisplayed()
 

@@ -22,8 +22,8 @@ fun AppNavHost(modifier: Modifier = Modifier) {
     ) {
         composable(AppDestinations.APP_LIST) {
             AppListRoute(
-                onAppClick = { app ->
-                    navController.navigate("app/${Uri.encode(app.id)}") {
+                onAppClick = { appId ->
+                    navController.navigate("app/${Uri.encode(appId)}") {
                         launchSingleTop = true
                     }
                 },

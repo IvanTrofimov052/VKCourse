@@ -17,36 +17,51 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.vkcourse.data.mapper.AppDetailsMapper
-import com.example.vkcourse.data.repository.AppRepositoryImpl
-import com.example.vkcourse.data.source.LocalAppDataSource
+import com.example.vkcourse.di.AppModule
+import com.example.vkcourse.domain.repository.AppRepository
 import com.example.vkcourse.presentation.appdetails.Showcase
 import com.example.vkcourse.presentation.navigation.AppNavHost
 import com.example.vkcourse.presentation.theme.VKCourseTheme
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@HiltAndroidTest
+@UninstallModules(AppModule::class)
 @RunWith(AndroidJUnit4::class)
 class AppNavigationTest {
-    private val repository = AppRepositoryImpl(
-        dataSource = LocalAppDataSource(),
-        mapper = AppDetailsMapper(),
-    )
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
 
-    @get:Rule
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+
+    @BindValue
+    @JvmField
+    val repository: AppRepository = AndroidTestData.repository
+
+    private val showcase = AndroidTestData.showcase
+
+    @Before
+    fun inject() {
+        hiltRule.inject()
+    }
 
     @Test
     fun showcaseHasThreePagesWithThreeAppsAndStopsAtTheLastPage() {
         compose.setContent {
-            VKCourseTheme { Showcase(apps = repository.getShowcaseApps(), onAppClick = {}) }
+            VKCourseTheme { Showcase(apps = showcase, onAppClick = {}) }
         }
 
         repeat(3) { page ->
             compose.onNodeWithTag("showcase_page_$page", useUnmergedTree = true)
                 .onChildren().assertCountEquals(3)
-            repository.getShowcaseApps().drop(page * 3).take(3).forEach { app ->
+            showcase.drop(page * 3).take(3).forEach { app ->
                 compose.onNodeWithText(app.name).assertIsDisplayed()
             }
             compose.onNodeWithContentDescription("Страница ${page + 1} из 3")
@@ -65,7 +80,7 @@ class AppNavigationTest {
     @Test
     fun listOpensSelectedAppAndToolbarBackReturnsToList() {
         showApp()
-        val selectedApp = repository.getShowcaseApps().first()
+        val selectedApp = showcase.first()
         compose.onNodeWithTag("catalog_app_${selectedApp.id}")
             .performScrollTo().performClick()
         compose.onNodeWithTag("app_details_screen").assertIsDisplayed()
@@ -79,7 +94,7 @@ class AppNavigationTest {
     @Test
     fun everyShowcaseAppReturnsToListWithoutLeavingDetailsInBackStack() {
         showApp()
-        repository.getShowcaseApps().forEachIndexed { index, app ->
+        showcase.forEachIndexed { index, app ->
             openFeaturedApp()
             compose.onNodeWithTag("showcase_pager").performScrollTo()
             repeat(index / 3) {
@@ -103,7 +118,8 @@ class AppNavigationTest {
     }
 
     private fun openFeaturedApp() {
-        compose.onNodeWithTag("catalog_app_${repository.getApps().first().id}")
+        val featured = AndroidTestData.apps.first()
+        compose.onNodeWithTag("catalog_app_${featured.id}")
             .performScrollTo().performClick()
         compose.onNodeWithTag("app_details_screen").assertIsDisplayed()
     }

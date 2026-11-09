@@ -25,22 +25,21 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.example.vkcourse.R
-import com.example.vkcourse.domain.model.AppDetails
+import com.example.vkcourse.domain.model.CatalogApp
 import com.example.vkcourse.presentation.components.AppListItem
 
-private const val PAGE_COUNT = 3
 private const val APPS_PER_PAGE = 3
 
 @Composable
 fun Showcase(
-    apps: List<AppDetails>,
-    onAppClick: (AppDetails) -> Unit,
+    apps: List<CatalogApp>,
+    onAppClick: (CatalogApp) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    require(apps.size == PAGE_COUNT * APPS_PER_PAGE) {
-        "В витрине должно быть ровно 9 приложений"
-    }
-    val pagerState = rememberPagerState(pageCount = { PAGE_COUNT })
+    if (apps.isEmpty()) return
+
+    val pageCount = (apps.size + APPS_PER_PAGE - 1) / APPS_PER_PAGE
+    val pagerState = rememberPagerState(pageCount = { pageCount })
 
     Column(modifier) {
         Text(
@@ -57,7 +56,7 @@ fun Showcase(
         ) { page ->
             Column(Modifier.fillMaxWidth().testTag("showcase_page_$page")) {
                 val firstIndex = page * APPS_PER_PAGE
-                apps.subList(firstIndex, firstIndex + APPS_PER_PAGE).forEach { app ->
+                apps.drop(firstIndex).take(APPS_PER_PAGE).forEach { app ->
                     AppListItem(
                         app = app,
                         onClick = { onAppClick(app) },
@@ -68,7 +67,7 @@ fun Showcase(
         }
         Spacer(Modifier.height(12.dp))
         val pageDescription = stringResource(
-            R.string.showcase_page, pagerState.currentPage + 1, PAGE_COUNT,
+            R.string.showcase_page, pagerState.currentPage + 1, pageCount,
         )
         Row(
             modifier = Modifier
@@ -76,7 +75,7 @@ fun Showcase(
                 .semantics { contentDescription = pageDescription },
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         ) {
-            repeat(PAGE_COUNT) { page ->
+            repeat(pageCount) { page ->
                 Box(
                     Modifier.size(8.dp).background(
                         color = if (page == pagerState.currentPage) {

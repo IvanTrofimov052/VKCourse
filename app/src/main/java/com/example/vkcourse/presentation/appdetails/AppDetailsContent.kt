@@ -15,18 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.example.vkcourse.domain.model.AppDetails
+import com.example.vkcourse.domain.model.CatalogApp
 
 @Composable
 fun AppDetailsContent(
     appDetails: AppDetails,
     descriptionCollapsed: Boolean,
-    showcaseApps: List<AppDetails>,
+    showcaseApps: List<CatalogApp>,
     onBackClick: () -> Unit,
     onShareClick: () -> Unit,
     onInstallClick: () -> Unit,
     onReadMoreClick: () -> Unit,
     onDeveloperClick: () -> Unit,
-    onShowcaseAppClick: (AppDetails) -> Unit,
+    onShowcaseAppClick: (CatalogApp) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.verticalScroll(rememberScrollState())) {

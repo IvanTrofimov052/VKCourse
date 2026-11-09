@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.vkcourse.R
 import com.example.vkcourse.domain.model.AppDetails
-import com.example.vkcourse.domain.model.Category
+import com.example.vkcourse.presentation.components.displayName
 import kotlin.math.roundToInt
 
 @Composable
@@ -50,7 +50,7 @@ fun AppDetailsHeader(
         Spacer(Modifier.width(16.dp))
         Column {
             Text(
-                text = getCategoryText(appDetails.category),
+                text = appDetails.category.displayName(),
                 color = MaterialTheme.colorScheme.secondary,
                 fontSize = 12.sp,
             )
@@ -85,29 +85,4 @@ fun AppDetailsHeader(
             }
         }
     }
-}
-
-// В presentation отображается доменная категория; преобразование DTO выполняется в data.
-@Composable
-private fun getCategoryText(category: Category): String = when (category) {
-    Category.APP -> "Приложения"
-    Category.GAME -> "Игры"
-    Category.PRODUCTIVITY -> "Производительность"
-    Category.SOCIAL -> "Социальные сети"
-    Category.EDUCATION -> "Образование"
-    Category.ENTERTAINMENT -> "Развлечения"
-    Category.MUSIC -> "Музыка"
-    Category.VIDEO -> "Видео"
-    Category.PHOTOGRAPHY -> "Фотография"
-    Category.HEALTH -> "Здоровье"
-    Category.SPORTS -> "Спорт"
-    Category.NEWS -> "Новости"
-    Category.BOOKS -> "Книги"
-    Category.BUSINESS -> "Бизнес"
-    Category.FINANCE -> "Финансы"
-    Category.TRAVEL -> "Путешествия"
-    Category.MAPS -> "Карты"
-    Category.FOOD -> "Еда"
-    Category.SHOPPING -> "Покупки"
-    Category.UTILITIES -> "Утилиты"
 }

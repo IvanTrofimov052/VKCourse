@@ -18,19 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.vkcourse.R
-import com.example.vkcourse.domain.model.AppDetails
-import kotlin.math.roundToInt
+import com.example.vkcourse.domain.model.CatalogApp
 
 /** Общая строка приложения для каталога и каждой страницы витрины. */
 @Composable
 fun AppListItem(
-    app: AppDetails,
+    app: CatalogApp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -62,16 +60,18 @@ fun AppListItem(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = app.developer,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = app.category.displayName(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(R.string.app_size, app.size.roundToInt()),
+                text = app.description,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

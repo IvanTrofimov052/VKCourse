@@ -2,7 +2,6 @@ package com.example.vkcourse.data.mapper
 
 import com.example.vkcourse.data.dto.AppDetailsDto
 import com.example.vkcourse.domain.model.AppDetails
-import com.example.vkcourse.domain.model.Category
 import javax.inject.Inject
 
 class AppDetailsMapper @Inject constructor() {
@@ -10,9 +9,7 @@ class AppDetailsMapper @Inject constructor() {
         id = dto.id,
         name = dto.name,
         developer = dto.developer,
-        category = Category.entries.firstOrNull {
-            it.name.equals(dto.category, ignoreCase = true)
-        } ?: Category.APP,
+        category = CategoryMapper.toDomain(dto.category),
         ageRating = dto.ageRating,
         size = dto.size,
         iconUrl = dto.iconUrl,

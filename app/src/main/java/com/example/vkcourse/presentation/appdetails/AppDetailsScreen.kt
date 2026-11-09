@@ -17,14 +17,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.vkcourse.R
 import com.example.vkcourse.domain.model.AppDetails
+import com.example.vkcourse.domain.model.CatalogApp
 import kotlinx.coroutines.launch
 
 @Composable
 fun AppDetailsScreen(
     app: AppDetails,
-    showcaseApps: List<AppDetails>,
+    showcaseApps: List<CatalogApp>,
     onBackClick: () -> Unit,
-    onShowcaseAppClick: (AppDetails) -> Unit,
+    onShowcaseAppClick: (CatalogApp) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Как в практике: false — краткое описание, true — полный текст.

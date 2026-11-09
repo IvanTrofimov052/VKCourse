@@ -13,11 +13,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.vkcourse.R
-import com.example.vkcourse.domain.model.AppDetails
 
 @Composable
 fun AppListRoute(
-    onAppClick: (AppDetails) -> Unit,
+    onAppClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AppListViewModel = hiltViewModel(),
 ) {
@@ -38,7 +37,10 @@ fun AppListRoute(
 
     AppListScreen(
         apps = uiState.apps,
+        isLoading = uiState.isLoading,
+        isError = uiState.isError,
         onAppClick = onAppClick,
+        onRetryClick = viewModel::loadApps,
         onToolbarClick = viewModel::onToolbarClick,
         snackbarHostState = snackbarHostState,
         modifier = modifier,
