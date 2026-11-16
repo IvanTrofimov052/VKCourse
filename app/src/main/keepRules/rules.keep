@@ -4,6 +4,11 @@
 # For more details, see
 #   https://d.android.com/r/tools/r8/keep-rules
 
+# Gson создаёт DTO через рефлексию, поэтому поля ответов нельзя удалять.
+-keep class com.example.vkcourse.data.dto.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:

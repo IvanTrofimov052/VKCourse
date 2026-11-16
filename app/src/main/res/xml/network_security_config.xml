@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Учебный API работает по HTTP, поэтому cleartext разрешён только для него. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">185.103.109.134</domain>
+    </domain-config>
+</network-security-config>
