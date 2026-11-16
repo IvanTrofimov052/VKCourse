@@ -37,11 +37,16 @@ fun AppListRoute(
 
     AppListScreen(
         apps = uiState.apps,
+        ratings = uiState.ratings,
+        isRatingsLoading = uiState.isRatingsLoading,
+        ratingsBenchmark = uiState.ratingsBenchmark,
         isLoading = uiState.isLoading,
         isError = uiState.isError,
         onAppClick = onAppClick,
         onRetryClick = viewModel::loadApps,
         onToolbarClick = viewModel::onToolbarClick,
+        onLoadRatingsSequentially = viewModel::loadRatingsSequentially,
+        onLoadRatingsInParallel = viewModel::loadRatingsInParallel,
         snackbarHostState = snackbarHostState,
         modifier = modifier,
     )

@@ -3,6 +3,7 @@ package com.example.vkcourse
 import com.example.vkcourse.domain.model.AppDetails
 import com.example.vkcourse.domain.model.CatalogApp
 import com.example.vkcourse.domain.model.Category
+import com.example.vkcourse.domain.model.RatingsLoadResult
 import com.example.vkcourse.domain.repository.AppRepository
 
 /** Детерминированные данные для UI-тестов: сеть в инструментальных тестах не нужна. */
@@ -38,5 +39,17 @@ object AndroidTestData {
         override suspend fun getApp(id: String): AppDetails? = details[id]
 
         override suspend fun getShowcaseApps(): List<CatalogApp> = showcase
+
+        override suspend fun loadRatingsSequentially(ids: List<String>): RatingsLoadResult =
+            RatingsLoadResult(
+                ratings = ids.associateWith { 4.5f },
+                elapsedMillis = 1_500L,
+            )
+
+        override suspend fun loadRatingsInParallel(ids: List<String>): RatingsLoadResult =
+            RatingsLoadResult(
+                ratings = ids.associateWith { 4.5f },
+                elapsedMillis = 150L,
+            )
     }
 }

@@ -4,10 +4,12 @@ import com.example.vkcourse.data.dto.AppDetailsDto
 import com.example.vkcourse.data.dto.CatalogAppDto
 import com.example.vkcourse.data.mapper.AppDetailsMapper
 import com.example.vkcourse.data.mapper.CatalogAppMapper
+import com.example.vkcourse.data.network.AppApi
 import com.example.vkcourse.data.network.CatalogApi
 import com.example.vkcourse.data.source.RemoteAppDataSource
 import com.example.vkcourse.domain.model.Category
 import com.example.vkcourse.domain.repository.AppRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -110,8 +112,41 @@ class AppRepositoryImplTest {
         assertEquals(2, api.catalogPathRequests)
     }
 
-    private fun repository(api: CatalogApi): AppRepository = AppRepositoryImpl(
+    @Test
+    fun sequentialRatingsWaitForPreviousRequest() = runTest {
+        val appApi = FakeAppApi(
+            ratings = mapOf("id-0" to 4.1f, "id-1" to 4.2f, "id-2" to 4.3f),
+        )
+
+        val result = repository(FakeCatalogApi(catalog = emptyList()), appApi)
+            .loadRatingsSequentially(listOf("id-0", "id-1", "id-2"))
+
+        assertEquals(mapOf("id-0" to 4.1f, "id-1" to 4.2f, "id-2" to 4.3f), result.ratings)
+        assertEquals(listOf("id-0", "id-1", "id-2"), appApi.requestedIds)
+        // В последовательном режиме одновременно выполняется только один запрос.
+        assertEquals(1, appApi.maxConcurrentRequests)
+    }
+
+    @Test
+    fun parallelRatingsStartAllRequestsAtOnce() = runTest {
+        val ids = (0..4).map { "id-$it" }
+        val appApi = FakeAppApi(ratings = ids.associateWith { 4.5f })
+
+        val result = repository(FakeCatalogApi(catalog = emptyList()), appApi)
+            .loadRatingsInParallel(ids)
+
+        assertEquals(ids.associateWith { 4.5f }, result.ratings)
+        assertEquals(ids.size, appApi.requestedIds.size)
+        // Все async стартуют до первой задержки, поэтому запросы пересекаются.
+        assertEquals(ids.size, appApi.maxConcurrentRequests)
+    }
+
+    private fun repository(
+        api: CatalogApi,
+        appApi: AppApi = FakeAppApi(),
+    ): AppRepository = AppRepositoryImpl(
         dataSource = RemoteAppDataSource(api),
+        appApi = appApi,
         catalogMapper = CatalogAppMapper(),
         detailsMapper = AppDetailsMapper(),
     )
@@ -135,6 +170,28 @@ class AppRepositoryImplTest {
         screenshotUrlList = listOf("https://example.com/1.png"),
         description = "Detailed description",
     )
+
+    private class FakeAppApi(
+        private val ratings: Map<String, Float> = emptyMap(),
+        private val delayMillis: Long = 1_000L,
+    ) : AppApi {
+        val requestedIds = mutableListOf<String>()
+        private var activeRequests = 0
+        var maxConcurrentRequests = 0
+            private set
+
+        override suspend fun getRating(id: String): Float {
+            requestedIds.add(id)
+            activeRequests++
+            maxConcurrentRequests = maxOf(maxConcurrentRequests, activeRequests)
+            try {
+                delay(delayMillis)
+            } finally {
+                activeRequests--
+            }
+            return ratings[id] ?: 4.0f
+        }
+    }
 
     private class FakeCatalogApi(
         private val catalog: List<CatalogAppDto>,

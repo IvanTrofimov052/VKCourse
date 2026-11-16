@@ -24,8 +24,10 @@ import kotlinx.coroutines.launch
 fun AppDetailsScreen(
     app: AppDetails,
     showcaseApps: List<CatalogApp>,
+    installState: InstallState,
     onBackClick: () -> Unit,
     onShowcaseAppClick: (CatalogApp) -> Unit,
+    onInstallClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Как в практике: false — краткое описание, true — полный текст.
@@ -45,9 +47,10 @@ fun AppDetailsScreen(
             appDetails = app,
             descriptionCollapsed = descriptionCollapsed,
             showcaseApps = showcaseApps,
+            installState = installState,
             onBackClick = onBackClick,
             onShareClick = showUnderDevelopment,
-            onInstallClick = showUnderDevelopment,
+            onInstallClick = onInstallClick,
             onReadMoreClick = { descriptionCollapsed = true },
             onDeveloperClick = showUnderDevelopment,
             onShowcaseAppClick = onShowcaseAppClick,

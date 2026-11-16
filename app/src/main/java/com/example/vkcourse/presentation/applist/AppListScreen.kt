@@ -33,11 +33,16 @@ import com.example.vkcourse.presentation.components.AppListItem
 @Composable
 fun AppListScreen(
     apps: List<CatalogApp>,
+    ratings: Map<String, Float>,
+    isRatingsLoading: Boolean,
+    ratingsBenchmark: RatingsBenchmark?,
     isLoading: Boolean,
     isError: Boolean,
     onAppClick: (String) -> Unit,
     onRetryClick: () -> Unit,
     onToolbarClick: () -> Unit,
+    onLoadRatingsSequentially: () -> Unit,
+    onLoadRatingsInParallel: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
@@ -89,9 +94,19 @@ fun AppListScreen(
                     modifier = Modifier.fillMaxSize().padding(contentPadding).testTag("app_list"),
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                 ) {
+                    item(key = "ratings_panel") {
+                        RatingsPanel(
+                            appCount = apps.size,
+                            isLoading = isRatingsLoading,
+                            benchmark = ratingsBenchmark,
+                            onLoadSequentially = onLoadRatingsSequentially,
+                            onLoadInParallel = onLoadRatingsInParallel,
+                        )
+                    }
                     items(items = apps, key = { it.id }) { app ->
                         AppListItem(
                             app = app,
+                            rating = ratings[app.id],
                             onClick = { onAppClick(app.id) },
                             modifier = Modifier.testTag("catalog_app_${app.id}"),
                         )

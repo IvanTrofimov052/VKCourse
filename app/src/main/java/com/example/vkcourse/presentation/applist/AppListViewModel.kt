@@ -17,8 +17,17 @@ import javax.inject.Inject
 
 data class AppListUiState(
     val apps: List<CatalogApp> = emptyList(),
+    val ratings: Map<String, Float> = emptyMap(),
+    val isRatingsLoading: Boolean = false,
+    val ratingsBenchmark: RatingsBenchmark? = null,
     val isLoading: Boolean = true,
     val isError: Boolean = false,
+)
+
+/** Замеры времени двух способов загрузки рейтингов. */
+data class RatingsBenchmark(
+    val sequentialMillis: Long? = null,
+    val parallelMillis: Long? = null,
 )
 
 sealed interface AppListEvent {
@@ -38,6 +47,7 @@ class AppListViewModel @Inject constructor(
     val events = _events.asSharedFlow()
 
     private var loadJob: Job? = null
+    private var ratingsJob: Job? = null
 
     init {
         loadApps()
@@ -57,6 +67,50 @@ class AppListViewModel @Inject constructor(
                 throw cancellation
             } catch (error: Exception) {
                 _uiState.update { state -> state.copy(isLoading = false, isError = true) }
+            }
+        }
+    }
+
+    fun loadRatingsSequentially() {
+        loadRatings(sequential = true)
+    }
+
+    fun loadRatingsInParallel() {
+        loadRatings(sequential = false)
+    }
+
+    private fun loadRatings(sequential: Boolean) {
+        if (ratingsJob?.isActive == true) return
+
+        val ids = _uiState.value.apps.map(CatalogApp::id)
+        if (ids.isEmpty()) return
+
+        ratingsJob = viewModelScope.launch {
+            _uiState.update { it.copy(isRatingsLoading = true) }
+
+            try {
+                val result = if (sequential) {
+                    repository.loadRatingsSequentially(ids)
+                } else {
+                    repository.loadRatingsInParallel(ids)
+                }
+
+                _uiState.update { state ->
+                    val benchmark = state.ratingsBenchmark ?: RatingsBenchmark()
+                    state.copy(
+                        ratings = result.ratings,
+                        isRatingsLoading = false,
+                        ratingsBenchmark = if (sequential) {
+                            benchmark.copy(sequentialMillis = result.elapsedMillis)
+                        } else {
+                            benchmark.copy(parallelMillis = result.elapsedMillis)
+                        },
+                    )
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: Exception) {
+                _uiState.update { it.copy(isRatingsLoading = false) }
             }
         }
     }

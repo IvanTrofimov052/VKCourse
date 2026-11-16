@@ -67,8 +67,7 @@ class AppListViewModelTest {
     }
 
     @Test
-    fun toolbarEventsAreNotReplayedToRecreatedScreen() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = AppListViewModel(repository = FakeAppRepository())
+    fun toolbarEventsAreNotReplayedToRecreatedScreen() = runTest(mainDispatcherRule.testDispatcher) {        val viewModel = AppListViewModel(repository = FakeAppRepository())
         val originalEvents = mutableListOf<AppListEvent>()
         val originalCollector = launch(start = CoroutineStart.UNDISPATCHED) {
             viewModel.events.collect { originalEvents.add(it) }
@@ -96,4 +95,42 @@ class AppListViewModelTest {
             recreatedCollector.cancelAndJoin()
         }
     }
+
+    @Test
+    fun ratingsCanBeLoadedSequentiallyAndInParallelForComparison() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeAppRepository(apps = TestApps.apps)
+            val viewModel = AppListViewModel(repository = repository)
+
+            viewModel.loadRatingsSequentially()
+
+            assertEquals(TestApps.apps.map { it.id }.associateWith { 4.5f }, viewModel.uiState.value.ratings)
+            assertEquals(1, repository.sequentialRatingsCalls)
+            assertEquals(0, repository.parallelRatingsCalls)
+            assertEquals(1_500L, viewModel.uiState.value.ratingsBenchmark?.sequentialMillis)
+            assertEquals(null, viewModel.uiState.value.ratingsBenchmark?.parallelMillis)
+            assertFalse(viewModel.uiState.value.isRatingsLoading)
+
+            viewModel.loadRatingsInParallel()
+
+            assertEquals(1, repository.sequentialRatingsCalls)
+            assertEquals(1, repository.parallelRatingsCalls)
+            assertEquals(1_500L, viewModel.uiState.value.ratingsBenchmark?.sequentialMillis)
+            assertEquals(150L, viewModel.uiState.value.ratingsBenchmark?.parallelMillis)
+            assertFalse(viewModel.uiState.value.isRatingsLoading)
+        }
+
+    @Test
+    fun ratingsLoadDoesNothingForEmptyCatalog() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeAppRepository()
+            val viewModel = AppListViewModel(repository = repository)
+
+            viewModel.loadRatingsSequentially()
+            viewModel.loadRatingsInParallel()
+
+            assertEquals(0, repository.sequentialRatingsCalls)
+            assertEquals(0, repository.parallelRatingsCalls)
+            assertTrue(viewModel.uiState.value.ratings.isEmpty())
+        }
 }

@@ -30,10 +30,9 @@ fun AppDetailsRoute(
     viewModel: AppDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val app = uiState.app
 
-    when {
-        uiState.isLoading -> {
+    when (val state = uiState) {
+        AppDetailsState.Loading -> {
             Scaffold(modifier = modifier) { contentPadding ->
                 Column(Modifier.fillMaxSize().padding(contentPadding)) {
                     BackButton(onBackClick)
@@ -47,7 +46,7 @@ fun AppDetailsRoute(
             }
         }
 
-        uiState.isError -> {
+        AppDetailsState.Error -> {
             Scaffold(modifier = modifier) { contentPadding ->
                 Column(
                     modifier = Modifier.fillMaxSize().padding(contentPadding),
@@ -73,7 +72,7 @@ fun AppDetailsRoute(
             }
         }
 
-        app == null -> {
+        AppDetailsState.NotFound -> {
             Scaffold(modifier = modifier) { contentPadding ->
                 Column(Modifier.padding(contentPadding)) {
                     BackButton(onBackClick)
@@ -82,11 +81,13 @@ fun AppDetailsRoute(
             }
         }
 
-        else -> {
+        is AppDetailsState.Content -> {
             AppDetailsScreen(
-                app = app,
-                showcaseApps = uiState.showcaseApps,
+                app = state.app,
+                showcaseApps = state.showcaseApps,
+                installState = state.installState,
                 onBackClick = onBackClick,
+                onInstallClick = viewModel::onInstallClick,
                 onShowcaseAppClick = { showcaseApp -> onShowcaseAppClick(showcaseApp.id) },
                 modifier = modifier,
             )

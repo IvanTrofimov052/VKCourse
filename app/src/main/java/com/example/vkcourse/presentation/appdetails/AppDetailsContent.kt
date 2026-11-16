@@ -22,6 +22,7 @@ fun AppDetailsContent(
     appDetails: AppDetails,
     descriptionCollapsed: Boolean,
     showcaseApps: List<CatalogApp>,
+    installState: InstallState,
     onBackClick: () -> Unit,
     onShareClick: () -> Unit,
     onInstallClick: () -> Unit,
@@ -42,6 +43,7 @@ fun AppDetailsContent(
         )
         Spacer(Modifier.height(16.dp))
         InstallButton(
+            installState = installState,
             onClick = onInstallClick,
             modifier = Modifier
                 .fillMaxWidth()

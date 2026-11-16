@@ -3,6 +3,7 @@ package com.example.vkcourse
 import com.example.vkcourse.domain.model.AppDetails
 import com.example.vkcourse.domain.model.CatalogApp
 import com.example.vkcourse.domain.model.Category
+import com.example.vkcourse.domain.model.RatingsLoadResult
 import com.example.vkcourse.domain.repository.AppRepository
 
 object TestApps {
@@ -48,6 +49,20 @@ class FakeAppRepository(
     val requestedAppIds = mutableListOf<String>()
     var getShowcaseAppsCalls = 0
         private set
+    var sequentialRatingsCalls = 0
+        private set
+    var parallelRatingsCalls = 0
+        private set
+
+    var ratingsElapsedSequentialMillis = 1_500L
+    var ratingsElapsedParallelMillis = 150L
+    var ratingValue = 4.5f
+    var ratingsError: Throwable? = null
+        private set
+
+    fun failRatingsWith(error: Throwable) {
+        ratingsError = error
+    }
 
     // Позволяет проверить состояние ошибки сети.
     var catalogError: Throwable? = null
@@ -75,5 +90,23 @@ class FakeAppRepository(
     override suspend fun getShowcaseApps(): List<CatalogApp> {
         getShowcaseAppsCalls++
         return showcaseApps
+    }
+
+    override suspend fun loadRatingsSequentially(ids: List<String>): RatingsLoadResult {
+        sequentialRatingsCalls++
+        ratingsError?.let { throw it }
+        return RatingsLoadResult(
+            ratings = ids.associateWith { ratingValue },
+            elapsedMillis = ratingsElapsedSequentialMillis,
+        )
+    }
+
+    override suspend fun loadRatingsInParallel(ids: List<String>): RatingsLoadResult {
+        parallelRatingsCalls++
+        ratingsError?.let { throw it }
+        return RatingsLoadResult(
+            ratings = ids.associateWith { ratingValue },
+            elapsedMillis = ratingsElapsedParallelMillis,
+        )
     }
 }

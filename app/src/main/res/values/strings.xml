@@ -15,6 +15,17 @@
     <string name="app_details_size">Размер</string>
     <string name="app_size">%1$d МБ</string>
     <string name="install">Установить</string>
+    <string name="cancel_install">Отменить</string>
+    <string name="installed">Установлено</string>
+    <string name="app_rating">★ %1$.1f</string>
+    <string name="ratings_title">Рейтинги приложений</string>
+    <string name="ratings_hint">%1$d приложений × 1,5 с эмуляции запроса</string>
+    <string name="ratings_sequential">Последовательно</string>
+    <string name="ratings_parallel">Параллельно</string>
+    <string name="ratings_loading">Загружаем рейтинги…</string>
+    <string name="ratings_sequential_result">Последовательно: %1$d мс</string>
+    <string name="ratings_parallel_result">Параллельно: %1$d мс</string>
+    <string name="ratings_speedup">Параллельно быстрее в %1$.1f раза</string>
     <string name="app_details_screenshots">Скриншоты</string>
     <string name="app_details_description">Описание приложения</string>
     <string name="app_details_read_more">Читать подробнее</string>
