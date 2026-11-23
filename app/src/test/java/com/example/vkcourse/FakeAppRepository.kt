@@ -76,6 +76,21 @@ class FakeAppRepository(
         catalogError = null
     }
 
+    // Ошибки подробностей и витрины для проверки UseCase-ов.
+    var detailsError: Throwable? = null
+        private set
+
+    fun failDetailsWith(error: Throwable) {
+        detailsError = error
+    }
+
+    var showcaseError: Throwable? = null
+        private set
+
+    fun failShowcaseWith(error: Throwable) {
+        showcaseError = error
+    }
+
     override suspend fun getApps(): List<CatalogApp> {
         getAppsCalls++
         catalogError?.let { throw it }
@@ -84,11 +99,13 @@ class FakeAppRepository(
 
     override suspend fun getApp(id: String): AppDetails? {
         requestedAppIds.add(id)
+        detailsError?.let { throw it }
         return details.find { it.id == id }
     }
 
     override suspend fun getShowcaseApps(): List<CatalogApp> {
         getShowcaseAppsCalls++
+        showcaseError?.let { throw it }
         return showcaseApps
     }
 

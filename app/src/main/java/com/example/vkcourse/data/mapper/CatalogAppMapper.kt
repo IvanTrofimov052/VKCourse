@@ -12,4 +12,12 @@ class CatalogAppMapper @Inject constructor() {
         category = CategoryMapper.toDomain(dto.category),
         iconUrl = dto.iconUrl,
     )
+
+    fun toDto(domain: CatalogApp): CatalogAppDto = CatalogAppDto(
+        id = domain.id,
+        name = domain.name,
+        description = domain.description,
+        category = CategoryMapper.toApi(domain.category),
+        iconUrl = domain.iconUrl,
+    )
 }

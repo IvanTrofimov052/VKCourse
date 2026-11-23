@@ -3,7 +3,8 @@ package com.example.vkcourse.presentation.appdetails
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vkcourse.domain.repository.AppRepository
+import com.example.vkcourse.domain.usecase.GetAppDetailsUseCase
+import com.example.vkcourse.domain.usecase.GetShowcaseAppsUseCase
 import com.example.vkcourse.presentation.navigation.AppDestinations
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -18,8 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AppDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    // Hilt подставляет AppRepositoryImpl, зарегистрированный в AppModule.
-    private val repository: AppRepository,
+    private val getAppDetails: GetAppDetailsUseCase,
+    private val getShowcaseApps: GetShowcaseAppsUseCase,
 ) : ViewModel() {
     private val appId: String = requireNotNull(savedStateHandle[AppDestinations.APP_ID]) {
         "Не передан аргумент навигации ${AppDestinations.APP_ID}"
@@ -42,10 +43,10 @@ class AppDetailsViewModel @Inject constructor(
             _state.value = AppDetailsState.Loading
 
             try {
-                val app = repository.getApp(appId)
+                val app = getAppDetails(appId)
                 // Витрина не критична для карточки: при её ошибке показываем пустой блок.
                 val showcase = try {
-                    repository.getShowcaseApps()
+                    getShowcaseApps()
                 } catch (cancellation: CancellationException) {
                     throw cancellation
                 } catch (error: Exception) {

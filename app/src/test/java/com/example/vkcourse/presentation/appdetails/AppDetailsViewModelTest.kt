@@ -8,6 +8,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.vkcourse.FakeAppRepository
 import com.example.vkcourse.MainDispatcherRule
 import com.example.vkcourse.TestApps
+import com.example.vkcourse.domain.usecase.GetAppDetailsUseCase
+import com.example.vkcourse.domain.usecase.GetShowcaseAppsUseCase
 import com.example.vkcourse.presentation.navigation.AppDestinations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
@@ -35,9 +37,9 @@ class AppDetailsViewModelTest {
             val store = ViewModelStore()
             val factory = viewModelFactory {
                 initializer {
-                    AppDetailsViewModel(
-                        savedStateHandle = savedStateHandle(TestApps.showcase.id),
+                    viewModel(
                         repository = repository,
+                        appId = TestApps.showcase.id,
                     )
                 }
             }
@@ -62,9 +64,9 @@ class AppDetailsViewModelTest {
     @Test
     fun unknownAppIsRepresentedByNotFoundWithoutCrashing() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val viewModel = AppDetailsViewModel(
-                savedStateHandle = savedStateHandle("missing"),
+            val viewModel = viewModel(
                 repository = FakeAppRepository(),
+                appId = "missing",
             )
 
             assertTrue(viewModel.uiState.value is AppDetailsState.NotFound)
@@ -101,9 +103,15 @@ class AppDetailsViewModelTest {
             assertEquals(InstallState.Installed, viewModel.content().installState)
         }
 
-    private fun installedAppViewModel() = AppDetailsViewModel(
-        savedStateHandle = savedStateHandle(TestApps.featured.id),
+    private fun installedAppViewModel() = viewModel(
         repository = FakeAppRepository(details = listOf(TestApps.featuredDetails)),
+        appId = TestApps.featured.id,
+    )
+
+    private fun viewModel(repository: FakeAppRepository, appId: String) = AppDetailsViewModel(
+        savedStateHandle = savedStateHandle(appId),
+        getAppDetails = GetAppDetailsUseCase(repository),
+        getShowcaseApps = GetShowcaseAppsUseCase(repository),
     )
 
     private fun AppDetailsViewModel.content() = uiState.value as AppDetailsState.Content

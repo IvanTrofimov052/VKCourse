@@ -7,6 +7,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.vkcourse.FakeAppRepository
 import com.example.vkcourse.MainDispatcherRule
 import com.example.vkcourse.TestApps
+import com.example.vkcourse.domain.usecase.GetAppsUseCase
+import com.example.vkcourse.domain.usecase.LoadRatingsInParallelUseCase
+import com.example.vkcourse.domain.usecase.LoadRatingsSequentiallyUseCase
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
@@ -23,13 +26,19 @@ class AppListViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    private fun viewModel(repository: FakeAppRepository) = AppListViewModel(
+        getApps = GetAppsUseCase(repository),
+        loadRatingsSequentially = LoadRatingsSequentiallyUseCase(repository),
+        loadRatingsInParallel = LoadRatingsInParallelUseCase(repository),
+    )
+
     @Test
     fun retainedViewModelLoadsCatalogOnlyOnce() = runTest(mainDispatcherRule.testDispatcher) {
         val apps = TestApps.apps
         val repository = FakeAppRepository(apps = apps)
         val store = ViewModelStore()
         val factory = viewModelFactory {
-            initializer { AppListViewModel(repository = repository) }
+            initializer { viewModel(repository) }
         }
 
         try {
@@ -51,7 +60,7 @@ class AppListViewModelTest {
     fun failedCatalogLoadCanBeRetried() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeAppRepository(apps = TestApps.apps)
         repository.failCatalogWith(IllegalStateException("no network"))
-        val viewModel = AppListViewModel(repository = repository)
+        val viewModel = viewModel(repository)
 
         assertFalse(viewModel.uiState.value.isLoading)
         assertTrue(viewModel.uiState.value.isError)
@@ -67,7 +76,7 @@ class AppListViewModelTest {
     }
 
     @Test
-    fun toolbarEventsAreNotReplayedToRecreatedScreen() = runTest(mainDispatcherRule.testDispatcher) {        val viewModel = AppListViewModel(repository = FakeAppRepository())
+    fun toolbarEventsAreNotReplayedToRecreatedScreen() = runTest(mainDispatcherRule.testDispatcher) {        val viewModel = viewModel(FakeAppRepository())
         val originalEvents = mutableListOf<AppListEvent>()
         val originalCollector = launch(start = CoroutineStart.UNDISPATCHED) {
             viewModel.events.collect { originalEvents.add(it) }
@@ -100,7 +109,7 @@ class AppListViewModelTest {
     fun ratingsCanBeLoadedSequentiallyAndInParallelForComparison() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeAppRepository(apps = TestApps.apps)
-            val viewModel = AppListViewModel(repository = repository)
+            val viewModel = viewModel(repository)
 
             viewModel.loadRatingsSequentially()
 
@@ -124,7 +133,7 @@ class AppListViewModelTest {
     fun ratingsLoadDoesNothingForEmptyCatalog() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeAppRepository()
-            val viewModel = AppListViewModel(repository = repository)
+            val viewModel = viewModel(repository)
 
             viewModel.loadRatingsSequentially()
             viewModel.loadRatingsInParallel()

@@ -16,4 +16,16 @@ class AppDetailsMapper @Inject constructor() {
         screenshotUrlList = dto.screenshotUrlList.orEmpty(),
         description = dto.description,
     )
+
+    fun toDto(domain: AppDetails): AppDetailsDto = AppDetailsDto(
+        id = domain.id,
+        name = domain.name,
+        developer = domain.developer,
+        category = CategoryMapper.toApi(domain.category),
+        ageRating = domain.ageRating,
+        size = domain.size,
+        iconUrl = domain.iconUrl,
+        screenshotUrlList = domain.screenshotUrlList,
+        description = domain.description,
+    )
 }

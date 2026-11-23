@@ -7,6 +7,30 @@ import com.example.vkcourse.domain.model.Category
  * модель использует enum. Маппинг терпим к английским значениям и регистру.
  */
 internal object CategoryMapper {
+    /** Обратный маппинг: доменная категория превращается в значение API. */
+    fun toApi(category: Category): String = when (category) {
+        Category.APP -> "Приложения"
+        Category.GAME -> "Игры"
+        Category.PRODUCTIVITY -> "Производительность"
+        Category.SOCIAL -> "Общение"
+        Category.EDUCATION -> "Образование"
+        Category.ENTERTAINMENT -> "Развлечения"
+        Category.MUSIC -> "Музыка"
+        Category.VIDEO -> "Видео"
+        Category.PHOTOGRAPHY -> "Фото и видео"
+        Category.HEALTH -> "Здоровье и фитнес"
+        Category.SPORTS -> "Спорт"
+        Category.NEWS -> "Новости"
+        Category.BOOKS -> "Книги и справочники"
+        Category.BUSINESS -> "Бизнес"
+        Category.FINANCE -> "Финансы"
+        Category.TRAVEL -> "Путешествия"
+        Category.MAPS -> "Навигация"
+        Category.FOOD -> "Еда и напитки"
+        Category.SHOPPING -> "Покупки"
+        Category.UTILITIES -> "Утилиты"
+    }
+
     fun toDomain(apiValue: String?): Category {
         val value = apiValue?.trim()?.lowercase().orEmpty()
         return when (value) {

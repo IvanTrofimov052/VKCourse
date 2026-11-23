@@ -3,7 +3,9 @@ package com.example.vkcourse.presentation.applist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vkcourse.domain.model.CatalogApp
-import com.example.vkcourse.domain.repository.AppRepository
+import com.example.vkcourse.domain.usecase.GetAppsUseCase
+import com.example.vkcourse.domain.usecase.LoadRatingsInParallelUseCase
+import com.example.vkcourse.domain.usecase.LoadRatingsSequentiallyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -36,8 +38,9 @@ sealed interface AppListEvent {
 
 @HiltViewModel
 class AppListViewModel @Inject constructor(
-    // Hilt подставляет AppRepositoryImpl, зарегистрированный в AppModule.
-    private val repository: AppRepository,
+    private val getApps: GetAppsUseCase,
+    private val loadRatingsSequentially: LoadRatingsSequentiallyUseCase,
+    private val loadRatingsInParallel: LoadRatingsInParallelUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AppListUiState())
     val uiState = _uiState.asStateFlow()
@@ -61,7 +64,7 @@ class AppListViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, isError = false) }
 
             try {
-                val apps = repository.getApps()
+                val apps = getApps()
                 _uiState.value = AppListUiState(apps = apps, isLoading = false)
             } catch (cancellation: CancellationException) {
                 throw cancellation
@@ -90,9 +93,9 @@ class AppListViewModel @Inject constructor(
 
             try {
                 val result = if (sequential) {
-                    repository.loadRatingsSequentially(ids)
+                    loadRatingsSequentially(ids)
                 } else {
-                    repository.loadRatingsInParallel(ids)
+                    loadRatingsInParallel(ids)
                 }
 
                 _uiState.update { state ->
